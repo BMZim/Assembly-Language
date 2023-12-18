@@ -1,0 +1,89 @@
+.model small
+.stack
+.data
+ msg1 db 10,13,"Enter the number of element: $"
+ line db 10,13,"$"
+ size db ?
+ array db 100 dup(?)
+ avg db ?
+
+
+.code
+main proc
+    mov ax,@data
+    mov ds,ax
+    mov ah,9
+    lea dx,msg1
+    int 21h
+    
+    mov ah,1
+    int 21h
+    mov size,al
+    sub size, 48
+    
+    xor cx,cx
+    mov cl,size
+    mov si,offset array
+    input:
+        call newline
+        mov ah,1
+        int 21h
+        sub al,48
+        mov array[si],al
+        inc si
+        
+        loop input
+        
+        call average
+        call max
+        
+        mov ah,4ch
+        int 21h
+        main endp
+newline proc
+    mov ah,9
+    lea dx,line
+    int 21h
+    ret
+    newline endp
+
+average proc
+    xor cx,cx
+    mov cl,size
+    mov si,offset array
+    mov bl,0
+    label1:
+    mov al,array[si]
+    add bl,al
+    inc si
+    loop label1
+    xor ax,ax
+    mov al,bl
+    div size
+    mov avg,al
+    ret
+    average endp
+
+max proc
+    xor cx,cx
+    mov cl,size
+    mov si,offset array
+    label2:
+    mov al,array[si]
+    cmp al,max
+    ja update
+    jmp endmax
+    
+    
+    update:
+    mov max,al
+    jmp endmax
+    
+    endmax:
+    inc si
+    loop label2
+    ret
+    
+    
+    max endp
+end main
